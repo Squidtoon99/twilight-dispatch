@@ -3,10 +3,6 @@ use twilight_model::id::{
     Id,
 };
 
-pub const EXCHANGE: &str = "gateway";
-pub const QUEUE_RECV: &str = "gateway.recv";
-pub const QUEUE_SEND: &str = "gateway.send";
-
 pub const SESSIONS_KEY: &str = "gateway_sessions";
 pub const STATUSES_KEY: &str = "gateway_statuses";
 pub const STARTED_KEY: &str = "gateway_started";
@@ -27,7 +23,6 @@ pub const EXPIRY_KEYS: &str = "expiry_keys";
 
 pub const CACHE_DUMP_INTERVAL: usize = 1000;
 pub const CACHE_CLEANUP_INTERVAL: usize = 1000;
-pub const METRICS_DUMP_INTERVAL: usize = 1000;
 
 pub const CONNECT_COLOR: usize = 0x00FF00;
 pub const DISCONNECT_COLOR: usize = 0xFF0000;

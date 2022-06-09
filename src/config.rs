@@ -30,14 +30,8 @@ lazy_static! {
             state_message_ttl: get_env_as("STATE_MESSAGE_TTL"),
             state_presence: get_env_as("STATE_PRESENCE"),
             state_old: get_env_as("STATE_OLD"),
-            rabbit_host: get_env("RABBIT_HOST"),
-            rabbit_port: get_env_as("RABBIT_PORT"),
-            rabbit_username: get_env("RABBIT_USERNAME"),
-            rabbit_password: get_env("RABBIT_PASSWORD"),
             redis_host: get_env("REDIS_HOST"),
             redis_port: get_env_as("REDIS_PORT"),
-            prometheus_host: get_env("PROMETHEUS_HOST"),
-            prometheus_port: get_env_as("PROMETHEUS_PORT"),
         }
     };
 }
@@ -68,14 +62,8 @@ pub struct Config {
     pub state_message_ttl: u64,
     pub state_presence: bool,
     pub state_old: bool,
-    pub rabbit_host: String,
-    pub rabbit_port: u64,
-    pub rabbit_username: String,
-    pub rabbit_password: String,
     pub redis_host: String,
     pub redis_port: u64,
-    pub prometheus_host: String,
-    pub prometheus_port: u64,
 }
 
 fn get_env(name: &str) -> String {

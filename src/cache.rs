@@ -72,14 +72,14 @@ where
     Ok(res)
 }
 
-pub async fn get_members_len<K>(conn: &mut redis::aio::Connection, key: K) -> ApiResult<u64>
-where
-    K: ToRedisArgs + Send + Sync,
-{
-    let res = conn.scard(key).await?;
+// pub async fn get_members_len<K>(conn: &mut redis::aio::Connection, key: K) -> ApiResult<u64>
+// where
+//     K: ToRedisArgs + Send + Sync,
+// {
+//     let res = conn.scard(key).await?;
 
-    Ok(res)
-}
+//     Ok(res)
+// }
 
 pub async fn get_hashmap<K, T, U>(
     conn: &mut redis::aio::Connection,

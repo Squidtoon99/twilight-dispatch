@@ -5,17 +5,12 @@
 
 use crate::{
     config::CONFIG,
-    constants::{EXCHANGE, QUEUE_RECV, QUEUE_SEND, SESSIONS_KEY, SHARDS_KEY, STARTED_KEY},
+    constants::{SESSIONS_KEY, SHARDS_KEY, STARTED_KEY},
     models::{ApiResult, FormattedDateTime, SessionInfo},
     utils::{get_clusters, get_queue, get_resume_sessions, get_shards},
 };
 
 use dotenv::dotenv;
-use lapin::{
-    options::{ExchangeDeclareOptions, QueueBindOptions, QueueDeclareOptions},
-    types::FieldTable,
-    ExchangeKind,
-};
 use std::collections::HashMap;
 use tokio::{join, signal::ctrl_c};
 use tracing::{error, info};
@@ -24,7 +19,6 @@ mod cache;
 mod config;
 mod constants;
 mod handler;
-mod metrics;
 mod models;
 mod utils;
 
@@ -48,73 +42,6 @@ async fn real_main() -> ApiResult<()> {
 
     let mut conn = redis.get_async_connection().await?;
 
-    let amqp = lapin::Connection::connect(
-        format!(
-            "amqp://{}:{}@{}:{}/%2f",
-            CONFIG.rabbit_username, CONFIG.rabbit_password, CONFIG.rabbit_host, CONFIG.rabbit_port
-        )
-        .as_str(),
-        lapin::ConnectionProperties::default(),
-    )
-    .await?;
-
-    let channel = amqp.create_channel().await?;
-    let channel_send = amqp.create_channel().await?;
-
-    channel
-        .exchange_declare(
-            EXCHANGE,
-            ExchangeKind::Topic,
-            ExchangeDeclareOptions {
-                passive: false,
-                durable: true,
-                auto_delete: false,
-                internal: false,
-                nowait: false,
-            },
-            FieldTable::default(),
-        )
-        .await?;
-    channel_send
-        .queue_declare(
-            QUEUE_SEND,
-            QueueDeclareOptions {
-                passive: false,
-                durable: true,
-                exclusive: false,
-                auto_delete: false,
-                nowait: false,
-            },
-            FieldTable::default(),
-        )
-        .await?;
-
-    if CONFIG.default_queue {
-        channel
-            .queue_declare(
-                QUEUE_RECV,
-                QueueDeclareOptions {
-                    passive: false,
-                    durable: true,
-                    exclusive: false,
-                    auto_delete: false,
-                    nowait: false,
-                },
-                FieldTable::default(),
-            )
-            .await?;
-
-        channel
-            .queue_bind(
-                QUEUE_RECV,
-                EXCHANGE,
-                "#",
-                QueueBindOptions::default(),
-                FieldTable::default(),
-            )
-            .await?;
-    }
-
     let shards = get_shards();
     let resumes = get_resume_sessions(&mut conn).await?;
     let resumes_len = resumes.len();
@@ -128,19 +55,13 @@ async fn real_main() -> ApiResult<()> {
     cache::set(&mut conn, STARTED_KEY, &FormattedDateTime::now()).await?;
     cache::set(&mut conn, SHARDS_KEY, &CONFIG.shards_total).await?;
 
-    tokio::spawn(async {
-        let _ = metrics::run_server().await;
-    });
-
     let mut conn_clone = redis.get_async_connection().await?;
     let mut conn_clone_two = redis.get_async_connection().await?;
-    let mut conn_clone_three = redis.get_async_connection().await?;
     let clusters_clone = clusters.clone();
     tokio::spawn(async move {
         join!(
             cache::run_jobs(&mut conn_clone, clusters_clone.as_slice()),
             cache::run_cleanups(&mut conn_clone_two),
-            metrics::run_jobs(&mut conn_clone_three, clusters_clone.as_slice()),
         )
     });
 
@@ -152,17 +73,10 @@ async fn real_main() -> ApiResult<()> {
 
         let mut conn_clone = redis.get_async_connection().await?;
         let cluster_clone = cluster.clone();
-        let channel_clone = channel.clone();
         tokio::spawn(async move {
-            handler::outgoing(&mut conn_clone, &cluster_clone, &channel_clone, events).await;
+            handler::outgoing(&mut conn_clone, &cluster_clone, events).await;
         });
     }
-
-    let channel_clone = channel_send.clone();
-    let clusters_clone = clusters.clone();
-    tokio::spawn(async move {
-        handler::incoming(clusters_clone.as_slice(), &channel_clone).await;
-    });
 
     ctrl_c().await?;
 

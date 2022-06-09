@@ -1,6 +1,4 @@
 use hyper::{http::Error as HyperHTTPError, Error as HyperError};
-use lapin::Error as LapinError;
-use prometheus::Error as PrometheusError;
 use redis::RedisError;
 use serde::{de::Error as SerdeDeError, Deserialize, Deserializer, Serialize, Serializer};
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -15,7 +13,7 @@ use std::{
     ops::{Add, Sub},
 };
 use time::{format_description, Duration, OffsetDateTime};
-use twilight_gateway::{cluster::ClusterStartError, shard::LargeThresholdError};
+use twilight_gateway::cluster::ClusterStartError;
 use twilight_model::{
     channel::Channel,
     gateway::{payload::incoming::GuildCreate, presence::Presence, OpCode},
@@ -162,13 +160,11 @@ pub enum ApiError {
     Redis(RedisError),
     Var(VarError),
     ParseInt(ParseIntError),
-    Lapin(LapinError),
     ClusterStart(ClusterStartError),
-    LargeThreshold(LargeThresholdError),
+    // LargeThreshold(LargeThresholdError),
     Hyper(HyperError),
     HyperHttp(HyperHTTPError),
     AddrParse(AddrParseError),
-    Prometheus(PrometheusError),
     Io(IoError),
 }
 
@@ -210,23 +206,17 @@ impl From<ParseIntError> for ApiError {
     }
 }
 
-impl From<LapinError> for ApiError {
-    fn from(err: LapinError) -> Self {
-        Self::Lapin(err)
-    }
-}
-
 impl From<ClusterStartError> for ApiError {
     fn from(err: ClusterStartError) -> Self {
         Self::ClusterStart(err)
     }
 }
 
-impl From<LargeThresholdError> for ApiError {
-    fn from(err: LargeThresholdError) -> Self {
-        Self::LargeThreshold(err)
-    }
-}
+// impl From<LargeThresholdError> for ApiError {
+//     fn from(err: LargeThresholdError) -> Self {
+//         Self::LargeThreshold(err)
+//     }
+// }
 
 impl From<HyperError> for ApiError {
     fn from(err: HyperError) -> Self {
@@ -243,12 +233,6 @@ impl From<HyperHTTPError> for ApiError {
 impl From<AddrParseError> for ApiError {
     fn from(err: AddrParseError) -> Self {
         Self::AddrParse(err)
-    }
-}
-
-impl From<PrometheusError> for ApiError {
-    fn from(err: PrometheusError) -> Self {
-        Self::Prometheus(err)
     }
 }
 
