@@ -29,7 +29,6 @@ pub const DISCONNECT_COLOR: usize = 0xFF0000;
 pub const READY_COLOR: usize = 0x00FF00;
 pub const RESUME_COLOR: usize = 0x1E90FF;
 pub const JOIN_COLOR: usize = 0x00FF00;
-pub const LEAVE_COLOR: usize = 0xFF0000;
 
 pub fn guild_key(guild: Id<GuildMarker>) -> String {
     format!("{}:{}", GUILD_KEY, guild)

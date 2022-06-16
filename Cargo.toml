@@ -12,14 +12,14 @@ lazy_static = { version = "1.4", default-features = false }
 redis = { version = "0.21", default-features = false, features = ["tokio-comp"] }
 serde = { version = "1.0", default-features = false }
 serde_repr = { version = "0.1", default-features = false }
-simd-json = { version = "0.4", default-features = false, features = ["serde_impl"] }
+simd-json = { version = "0.5.0", default-features = true, features=["allow-non-simd"]}
 time = { version = "0.3", default-features = false, features = ["std", "formatting"] }
 tokio = { version = "1.2", default-features = false, features = ["rt-multi-thread", "macros", "signal", "time"] }
 tracing = { version = "0.1", default-features = false }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["ansi", "fmt"] }
-twilight-gateway = { version = "0.10.2", features = ["rustls-webpki-roots", "simd-json", "zlib-simd"] }
-twilight-http = { version = "0.10.2"}
-twilight-model = "0.10.2"
+twilight-gateway = { version = "0.11.0" }
+twilight-http = { version = "0.11.0"}
+twilight-model = "0.11.0"
 
 [patch.crates-io]
 hyper-rustls = { git = "https://github.com/ctz/hyper-rustls" }

@@ -29,9 +29,10 @@ async fn main() {
 
     let result = real_main().await;
 
-    if let Err(err) = result {
+    if let Err(err) = &result {
         error!("{:?}", err);
     }
+    println!("{:?}", result.ok());
 }
 
 async fn real_main() -> ApiResult<()> {

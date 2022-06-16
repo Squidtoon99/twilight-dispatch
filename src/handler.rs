@@ -2,13 +2,12 @@ use crate::{
     cache,
     config::CONFIG,
     constants::{
-        CONNECT_COLOR, DISCONNECT_COLOR, JOIN_COLOR, LEAVE_COLOR, READY_COLOR, RESUME_COLOR,
+        CONNECT_COLOR, DISCONNECT_COLOR, JOIN_COLOR, READY_COLOR, RESUME_COLOR,
     },
     utils::{log_discord, log_discord_guild},
 };
 
 use futures_util::{Stream, StreamExt};
-use simd_json::{json, ValueAccess};
 use std::time::Duration;
 use tokio::time::timeout;
 use tracing::{info, warn};
@@ -113,24 +112,6 @@ pub async fn outgoing(
                         JOIN_COLOR,
                         "Guild Join",
                         format!("{} ({})", data.name, data.id),
-                    );
-                }
-            }
-            Event::GuildDelete(data) => {
-                if !data.unavailable {
-                    let old_data = old.unwrap_or(json!({}));
-                    let guild = old_data.as_object().unwrap();
-                    log_discord_guild(
-                        LEAVE_COLOR,
-                        "Guild Leave",
-                        format!(
-                            "{} ({})",
-                            guild
-                                .get("name")
-                                .and_then(|name| name.as_str())
-                                .unwrap_or("Unknown"),
-                            guild.get("id").and_then(|id| id.as_str()).unwrap_or("0")
-                        ),
                     );
                 }
             }

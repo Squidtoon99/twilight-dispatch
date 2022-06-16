@@ -355,7 +355,6 @@ pub async fn run_cleanups(conn: &mut redis::aio::Connection) {
                 warn!("Failed to get expiry keys: {:?}", err);
             }
         }
-
         sleep(Duration::from_millis(CACHE_CLEANUP_INTERVAL as u64)).await;
     }
 }

@@ -8,3 +8,4 @@ target/
 
 # Environmental variables
 .env
+deployment.yml
